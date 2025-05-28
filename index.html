@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Subir archivo para resumen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      padding: 40px;
+    }
+    form {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="email"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3E7B27;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2f5f1e;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <h2>Sube tu archivo para resumir</h2>
+    <label for="email">Correo electrónico:</label>
+    <input type="email" name="email" id="email" required>
+
+    <label for="file">Archivo (PDF o Imagen):</label>
+    <input type="file" name="file" id="file" accept=".pdf,image/*" required>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const webhookURL = 'https://hook.us2.make.com/p7tq0lijvto2rwnf9m5bydkoqsukmwdq'; //webhook URL
+
+      try {
+        const response = await fetch(webhookURL, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          alert('Archivo enviado correctamente. Revisa tu correo pronto.');
+          form.reset();
+        } else {
+          alert('Error al enviar. Intenta nuevamente.');
+        }
+      } catch (error) {
+        alert('Error de conexión.');
+        console.error(error);
+      }
+    });
+  </script>
+
+</body>
+</html>
