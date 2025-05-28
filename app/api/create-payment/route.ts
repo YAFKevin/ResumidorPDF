@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import mercadopago from 'mercadopago';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 import connectMongoDB from '@/lib/mongodb';
 import User from '@/models/User';
 
 // Configurar MercadoPago
-mercadopago.configure({
-  access_token: process.env.MERCADOPAGO_ACCESS_TOKEN!,
+const client = new MercadoPagoConfig({ 
+  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! 
 });
 
 export async function POST(request: Request) {
@@ -71,7 +71,8 @@ export async function POST(request: Request) {
     }
 
     // Crear la preferencia de pago
-    const preference = {
+    const preference = new Preference(client);
+    const result = await preference.create({
       items: [
         {
           title: selectedPlan.name,
@@ -93,13 +94,11 @@ export async function POST(request: Request) {
         userId: user._id.toString(),
         plan: plan,
       },
-    };
-
-    const response = await mercadopago.preferences.create(preference);
+    });
 
     return NextResponse.json({
-      init_point: response.body.init_point,
-      preferenceId: response.body.id,
+      init_point: result.init_point,
+      preferenceId: result.id,
     });
   } catch (error) {
     console.error('Error al crear la preferencia de pago:', error);
