@@ -73,25 +73,32 @@ export async function POST(request: Request) {
     // Crear la preferencia de pago
     const preference = new Preference(client);
     const result = await preference.create({
-      items: [{
-        id: plan,
-        title: selectedPlan.name,
-        description: selectedPlan.features.join('\n'),
-        quantity: 1,
-        unit_price: selectedPlan.price,
-        currency_id: 'PEN'
-      }],
-      back_urls: {
-        success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?success=true`,
-        failure: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?error=payment_failed`,
-        pending: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=pending`
-      },
-      auto_return: 'approved',
-      external_reference: user._id.toString(),
-      notification_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mercadopago`,
-      metadata: {
-        userId: user._id.toString(),
-        plan: plan
+      body: {
+        items: [
+          {
+            id: plan,
+            title: selectedPlan.name,
+            description: selectedPlan.features.join('\n'),
+            quantity: 1,
+            currency_id: 'PEN',
+            unit_price: selectedPlan.price,
+          }
+        ],
+        back_urls: {
+          success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?success=true`,
+          failure: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?error=payment_failed`,
+          pending: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=pending`
+        },
+        auto_return: 'approved',
+        external_reference: user._id.toString(),
+        notification_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mercadopago`,
+        statement_descriptor: selectedPlan.name,
+        metadata: {
+          userId: user._id.toString(),
+          plan: plan,
+          price: selectedPlan.price,
+          description: selectedPlan.features.join('\n')
+        }
       }
     });
 
