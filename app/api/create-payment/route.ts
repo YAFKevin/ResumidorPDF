@@ -73,32 +73,31 @@ export async function POST(request: Request) {
     // Crear la preferencia de pago
     const preference = new Preference(client);
     const result = await preference.create({
-      items: [
-        {
-          title: selectedPlan.name,
-          description: selectedPlan.features.join('\n'),
-          unit_price: selectedPlan.price,
-          quantity: 1,
-          currency_id: 'PEN', // Moneda en Soles
-        },
-      ],
+      items: [{
+        id: plan,
+        title: selectedPlan.name,
+        description: selectedPlan.features.join('\n'),
+        quantity: 1,
+        unit_price: selectedPlan.price,
+        currency_id: 'PEN'
+      }],
       back_urls: {
         success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?success=true`,
         failure: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?error=payment_failed`,
-        pending: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=pending`,
+        pending: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=pending`
       },
       auto_return: 'approved',
       external_reference: user._id.toString(),
       notification_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhooks/mercadopago`,
       metadata: {
         userId: user._id.toString(),
-        plan: plan,
-      },
+        plan: plan
+      }
     });
 
     return NextResponse.json({
       init_point: result.init_point,
-      preferenceId: result.id,
+      preferenceId: result.id
     });
   } catch (error) {
     console.error('Error al crear la preferencia de pago:', error);

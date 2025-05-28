@@ -40,8 +40,10 @@ export async function POST(request: Request) {
     switch (paymentData.status) {
       case 'approved':
         user.subscription.status = 'active';
-        user.subscription.plan = paymentData.metadata.plan;
-        user.subscription.mercadopagoSubscriptionId = paymentData.id.toString();
+        user.subscription.plan = paymentData.metadata?.plan || 'pro';
+        if (paymentData.id) {
+          user.subscription.mercadopagoSubscriptionId = paymentData.id.toString();
+        }
         user.subscription.currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 días
         break;
 
