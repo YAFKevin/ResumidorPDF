@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { sendVerificationEmail } from '@/lib/mailer'; // Asumimos que crearás este archivo
 
 export async function POST(request: Request) {
