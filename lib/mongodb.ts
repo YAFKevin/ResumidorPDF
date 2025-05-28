@@ -1,9 +1,16 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+declare global {
+  var mongoose: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+}
+
+const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error('Por favor define MONGODB_URI en el archivo .env.local');
+  throw new Error('Por favor define MONGODB_URI en el archivo .env');
 }
 
 let cached = global.mongoose;
@@ -12,7 +19,7 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-async function connectDB() {
+async function connectMongoDB() {
   if (cached.conn) {
     return cached.conn;
   }
@@ -22,7 +29,7 @@ async function connectDB() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       return mongoose;
     });
   }
@@ -37,4 +44,4 @@ async function connectDB() {
   return cached.conn;
 }
 
-export default connectDB; 
+export default connectMongoDB; 
