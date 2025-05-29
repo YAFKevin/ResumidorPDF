@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -10,7 +10,39 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [userPlan, setUserPlan] = useState({ status: 'free', plan: 'free' });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/user/me');
+        if (response.ok) {
+          const data = await response.json();
+          setUserPlan(data.subscription);
+        }
+      } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+      }
+    };
+
+    fetchUserData();
+
+    // Verificar parámetros de URL para mensajes de pago
+    const searchParams = new URLSearchParams(window.location.search);
+    const paymentStatus = searchParams.get('payment');
+    const errorStatus = searchParams.get('error');
+
+    if (paymentStatus === 'success') {
+      setMessage('¡Pago realizado con éxito! Tu plan ha sido actualizado.');
+      // Limpiar la URL
+      window.history.replaceState({}, document.title, '/dashboard');
+    } else if (errorStatus === 'payment_failed') {
+      setMessage('Hubo un error al procesar el pago. Por favor, intenta nuevamente.');
+      // Limpiar la URL
+      window.history.replaceState({}, document.title, '/dashboard');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +175,25 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {/* Plan Status */}
+        <div className="mb-8 bg-white shadow rounded-lg p-6">
+          <h2 className="text-lg font-medium text-gray-900 mb-4">Tu Plan Actual</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500">Estado: <span className="font-medium text-gray-900">{userPlan.status === 'active' ? 'Activo' : 'Gratuito'}</span></p>
+              <p className="text-sm text-gray-500">Plan: <span className="font-medium text-gray-900">{userPlan.plan === 'free' ? 'Gratuito' : userPlan.plan === 'mensual' ? 'Plan Mensual' : 'Plan Anual'}</span></p>
+            </div>
+            {userPlan.status !== 'active' && (
+              <Link
+                href="/pricing"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+              >
+                Actualizar Plan
+              </Link>
+            )}
+          </div>
+        </div>
+
         <div className="text-center">
           <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
             Resumidor de PDF con IA

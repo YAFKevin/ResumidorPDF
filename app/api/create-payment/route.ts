@@ -105,7 +105,7 @@ export async function POST(request: Request) {
           }
         ],
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?success=true`,
+          success: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?payment=success`,
           failure: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing?error=payment_failed`,
           pending: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?status=pending`
         },
