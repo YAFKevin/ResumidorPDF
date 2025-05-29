@@ -7,6 +7,8 @@ import crypto from 'crypto';
 // console.log('Script del webhook cargado'); // Log muy, muy temprano
 
 export async function POST(request: Request) {
+  console.log('=== WEBHOOK INICIADO ===');
+  console.log('Headers recibidos:', Object.fromEntries(request.headers.entries()));
   console.log('Función POST del webhook iniciada'); // Log 1
 
   try {
