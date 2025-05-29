@@ -4,12 +4,15 @@ import connectMongoDB from '@/lib/mongodb';
 import User from '@/models/User';
 import crypto from 'crypto';
 
-const client = new MercadoPagoConfig({ 
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN! 
-});
-
 export async function POST(request: Request) {
   try {
+    // Inicializar cliente de MercadoPago dentro del try
+    const client = new MercadoPagoConfig({
+      accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!
+    });
+
+    console.log('Cliente de MercadoPago inicializado dentro del try'); // <-- Log adicional aquí
+
     // Obtener el cuerpo raw y el encabezado de firma
     const rawBody = await request.text();
     const signature = request.headers.get('x-signature');
