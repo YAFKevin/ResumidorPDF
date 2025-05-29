@@ -64,9 +64,13 @@ function LoginContent() {
         // Aquí podrías guardar el token JWT en localStorage si lo implementas
         // localStorage.setItem('token', data.token);
         
-        // Redirigir al dashboard o página principal después de un breve delay
+        // Redirigir según el estado de suscripción
         setTimeout(() => {
-          router.push('/dashboard'); // Asegúrate de crear esta página
+          if (data.user?.subscriptionStatus === 'active') {
+            router.push('/dashboard'); // Redirigir al dashboard si está suscrito
+          } else {
+            router.push('/pricing'); // Redirigir a la página de precios si no está suscrito
+          }
         }, 1500);
       } else {
         showModal(data.error || 'Error al iniciar sesión', 'error');

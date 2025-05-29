@@ -51,7 +51,8 @@ export async function POST(request: Request) {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        subscriptionStatus: user.subscription?.status || 'inactive',
       }
     });
 
