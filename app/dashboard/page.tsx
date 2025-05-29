@@ -138,7 +138,8 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
-    // Aquí irá la lógica de cierre de sesión
+    // Eliminar la cookie de autenticación
+    document.cookie = 'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;';
     router.push('/login');
   };
 
