@@ -53,13 +53,16 @@ export default function Pricing() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Función para verificar si el usuario está logueado (ejemplo simple buscando la cookie)
+  // Función para verificar si el usuario está logueado buscando la cookie 'token'
   const isLoggedIn = () => {
-    // Esto es una verificación básica. Una solución más robusta usaría un contexto de autenticación.
-    return document.cookie.includes('token=');
+    const cookies = document.cookie.split('; ');
+    const tokenCookie = cookies.find(cookie => cookie.startsWith('token='));
+    // Retorna true si encuentra la cookie con un valor (no solo 'token=')
+    return tokenCookie ? tokenCookie.split('=')[1] !== '' : false;
   };
 
   const handleCheckout = async (plan: string) => {
+    console.log('Verificando login para checkout. Cookies:', document.cookie);
     if (!isLoggedIn()) {
       alert('Por favor, inicia sesión para comprar un plan.');
       router.push('/login'); // Redirigir al login
