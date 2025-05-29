@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     // Obtener el cuerpo raw y el encabezado de firma
     const rawBody = await request.text();
     const signature = request.headers.get('x-signature');
-    const webhookSecret = process.env.MERCADAPAGO_WEBHOOK_SECRET; // Usar la nueva variable
+    const webhookSecret = process.env.MERCADOPAGO_WEBHOOK_SECRET; // Usar la nueva variable
 
     // Verificar la clave secreta del webhook
     if (!webhookSecret) {
