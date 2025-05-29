@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     if (!webhookSecret) {
       console.error('Clave secreta del webhook MERCADOPAGO_WEBHOOK_SECRET no configurada.');
       return NextResponse.json(
-        { error: 'Configuración del webhook incompleta.' },
+        { error: 'Configuración del webhook incompleta.' }, //
         { status: 500 }
       );
     }
