@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import connectMongoDB from '@/lib/mongodb';
 import User from '@/models/User';
+import jwt from 'jsonwebtoken';
 
 // Configurar MercadoPago
 const client = new MercadoPagoConfig({ 
@@ -17,15 +18,35 @@ export async function POST(request: Request) {
     
     if (!token) {
       return NextResponse.json(
-        { error: 'No autorizado' },
+        { error: 'No autorizado: Token no encontrado' },
         { status: 401 }
       );
     }
 
+    let userId = null;
+    try {
+      // Decodificar y verificar el token
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'tu_secreto_seguro');
+      userId = decoded.userId;
+    } catch (error) {
+      console.error('Error al verificar token JWT:', error);
+      return NextResponse.json(
+        { error: 'No autorizado: Token inválido o expirado' },
+        { status: 401 }
+      );
+    }
+
+    if (!userId) {
+       return NextResponse.json(
+         { error: 'No autorizado: ID de usuario no encontrado en el token' },
+         { status: 401 }
+       );
+    }
+
     await connectMongoDB();
 
-    // Obtener el usuario actual
-    const user = await User.findOne({ _id: token });
+    // Obtener el usuario actual usando el ID extraído del token
+    const user = await User.findOne({ _id: userId });
     
     if (!user) {
       return NextResponse.json(
