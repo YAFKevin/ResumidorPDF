@@ -20,28 +20,85 @@ export default function Dashboard() {
         if (response.ok) {
           const data = await response.json();
           setUserPlan(data.subscription);
+        } else {
+           // Si no se puede obtener el usuario, redirigir al login
+           router.push('/login');
         }
       } catch (error) {
         console.error('Error al obtener datos del usuario:', error);
+        // Si hay un error, redirigir al login
+        router.push('/login');
       }
     };
 
     fetchUserData();
 
-    // Verificar parámetros de URL para mensajes de pago
+    // Verificar parámetros de URL para mensajes de pago y actualización manual
     const searchParams = new URLSearchParams(window.location.search);
     const paymentStatus = searchParams.get('payment');
     const errorStatus = searchParams.get('error');
+    const paymentId = searchParams.get('preference_id'); // MercadoPago a veces usa preference_id en la redirección
 
     if (paymentStatus === 'success') {
-      setMessage('¡Pago realizado con éxito! Tu plan ha sido actualizado.');
-      // Limpiar la URL
-      window.history.replaceState({}, document.title, '/dashboard');
+      setMessage('Pago realizado con éxito. Verificando tu plan...');
+
+      // Intentar actualización manual usando el paymentId (si está disponible)
+      if (paymentId) {
+        const updateSubscription = async () => {
+          try {
+             // Obtener el token de la cookie para la autorización
+            const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+
+            const response = await fetch('/api/update-subscription-manual', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                 // Incluir el token en los encabezados
+                'Cookie': `token=${token}`
+              },
+              body: JSON.stringify({ paymentId }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+              setMessage('¡Tu plan ha sido actualizado!');
+              // Opcional: Volver a obtener los datos del usuario para reflejar el cambio inmediatamente
+              fetchUserData();
+            } else if (response.ok && data.message) {
+               // Mensaje de que el pago no fue aprobado o ya estaba activo
+               setMessage(data.message);
+               fetchUserData(); // Reflejar el estado actual
+            } else {
+              console.error('Error en la actualización manual:', data.error);
+              setMessage(data.error || 'Error al actualizar tu plan automáticamente.');
+            }
+          } catch (error) {
+            console.error('Error al llamar a la API de actualización manual:', error);
+            setMessage('Error de conexión al intentar actualizar tu plan.');
+          } finally {
+            // Limpiar la URL después de intentar la actualización
+            window.history.replaceState({}, document.title, '/dashboard');
+          }
+        };
+        updateSubscription();
+      } else {
+         setMessage('Pago exitoso, pero no se encontró ID de pago para actualizar.');
+         window.history.replaceState({}, document.title, '/dashboard');
+      }
+
     } else if (errorStatus === 'payment_failed') {
       setMessage('Hubo un error al procesar el pago. Por favor, intenta nuevamente.');
       // Limpiar la URL
       window.history.replaceState({}, document.title, '/dashboard');
+    } else {
+       // Limpiar otros parámetros si existen y no son de pago
+       const url = new URL(window.location.href);
+       if (url.searchParams.toString() !== '') {
+          window.history.replaceState({}, document.title, '/dashboard');
+       }
     }
+
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
