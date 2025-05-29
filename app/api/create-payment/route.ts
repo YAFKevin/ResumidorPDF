@@ -56,21 +56,20 @@ export async function POST(request: Request) {
     }
 
     // Definir los precios según el plan
-    const prices = {
-      pro: {
-        price: 9.99,
-        name: 'Plan Pro',
+    const prices: { [key: string]: { price: number; name: string; features: string[] } } = {
+      mensual: {
+        price: 10,
+        name: 'Plan Mensual',
         features: [
           '50 resúmenes por mes',
           'PDFs hasta 50MB',
           'Resúmenes avanzados',
-          'Acceso prioritario a la API',
           'Soporte por email',
         ],
       },
-      enterprise: {
-        price: 29.99,
-        name: 'Plan Empresarial',
+      anual: {
+        price: 99,
+        name: 'Plan Anual',
         features: [
           'Resúmenes ilimitados',
           'PDFs hasta 100MB',
@@ -82,7 +81,7 @@ export async function POST(request: Request) {
       },
     };
 
-    const selectedPlan = prices[plan as keyof typeof prices];
+    const selectedPlan = prices[plan];
 
     if (!selectedPlan) {
       return NextResponse.json(
